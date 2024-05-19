@@ -14,12 +14,27 @@
         button { background-color: #4CAF50; color: #fff; border: none; cursor: pointer; }
         button:hover { background-color: #45a049; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script>
+      // تكوين Firebase
+      var firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+      // تهيئة Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 <body>
     <header><h1>تسجيل الدخول</h1></header>
     <div class="container">
         <form id="loginForm">
-            <label for="username">اسم المستخدم:</label>
+            <label for="username">اسم المستخدم (البريد الإلكتروني):</label>
             <input type="text" id="username" required>
             
             <label for="password">كلمة المرور:</label>
@@ -31,28 +46,22 @@
     </div>
 
     <script>
-function login() {
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password').value;
+    function login() {
+        var email = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
 
-    // تغيير عنوان الخادم إلى عنوان IP عام
-    fetch('http://192.168.1.100:5000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === "Login successful") {
-            localStorage.setItem('role', data.role);  // حفظ دور المستخدم في localStorage
-            window.location.href = "main.html";  // إعادة التوجيه إلى الصفحة الرئيسية
-        } else {
-            document.getElementById('result').innerHTML = `<p>${data.message}</p>`;
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
-
+        firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // تم تسجيل الدخول بنجاح
+            var user = userCredential.user;
+            window.location.href = "main.html"; // إعادة التوجيه إلى الصفحة الرئيسية
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            document.getElementById('result').innerHTML = `<p>خطأ: ${errorMessage}</p>`;
+        });
+    }
     </script>
 </body>
 </html>
